@@ -1,0 +1,2 @@
+export const MINIMALE_2024 = 18415;
+export const MAX_RAL_FORFETTARIO = 35000;

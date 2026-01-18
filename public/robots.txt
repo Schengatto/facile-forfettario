@@ -1,0 +1,4 @@
+User-agent: *
+   Allow: /
+   Sitemap: https://finance-toolbox.it/sitemap.xml
+   Sitemap: https://facile-forfettario.org/sitemap-facile-forfettario.xml
