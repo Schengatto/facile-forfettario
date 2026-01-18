@@ -1,5 +1,4 @@
 :root {
-  /* Setup font e altre proprietà base */
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -9,7 +8,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Palette colori di base */
   --primary-50: #f0f0ff;
   --primary-100: #e0e0ff;
   --primary-200: #c7c7fe;
@@ -35,7 +33,6 @@
   --green-light: #b7e6be;
   --green-dark: #72B884;
 
-  /* Variabili semantiche - Light theme di default */
   --color-primary-text: var(--primary-50);
   --color-primary-background: var(--primary-500);
   --color-primary-alt: var(--primary-50);
@@ -65,6 +62,10 @@
 
   background-color: var(--color-background);
   color: var(--color-text-primary);
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -72,7 +73,6 @@
     color-scheme: dark;
     /* Importante: abilita dark-mode come default per il first paint */
     --tw-bg-opacity: 1;
-    background-color: red;
   }
 }
 
@@ -104,6 +104,10 @@
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0);
+  }
 }
 
 #app {

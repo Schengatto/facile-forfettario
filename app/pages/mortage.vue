@@ -25,7 +25,7 @@
 
         <div class="input-item">
           <label>Data apertura</label>
-          <input type="month" v-model="inputs.startDate" />
+          <input type="date" v-model="inputs.startDate" />
         </div>
       </div>
     </div>
@@ -180,18 +180,35 @@ interface Input {
   startDate?: string;
 }
 
-const getCurrentYearMonth = (): string => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
+useHead({
+  title: 'Finance Toolbox - Calcolatore Mutuo',
+  meta: [
+    { name: 'description', content: 'Calcolatore per mutui con piano ammortamento e rimborso parziale.' },
+    { name: 'keywords', content: 'calcolo mutui, mutuo, rimborso parziale, ammortamento mutuo' },
+  ],
+  link: [
+    { rel: 'canonical', href: 'https://finance-toolbox.it/mortage' }
+  ]
+});
+
+const getYearMonth = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
   return `${year}-${month}`;
+};
+
+const getYearMonthDate = (date: Date = new Date()): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate() + 1).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 const inputs = ref<Input>({
   mortageAmount: 250000,
   mortageInterestRate: 3,
   mortageTerm: 30,
-  startDate: getCurrentYearMonth(),
+  startDate: getYearMonthDate(),
 });
 
 const partial = ref({
@@ -246,8 +263,7 @@ const amortizationSchedule = computed(() => {
   const rate = monthlyPayment.value;
   const monthlyRate = r.value;
 
-  const [y, m] = inputs.value.startDate.split('-').map(Number);
-  let currentDate = (!!y && !!m) ? new Date(y, m - 1) : new Date();
+  let currentDate = new Date(inputs.value.startDate) ?? new Date();
 
   for (let i = 1; i <= totalMonths.value; i++) {
     const interest = monthlyRate === 0 ? 0 : remaining * monthlyRate;
@@ -361,12 +377,11 @@ const savingOption2 = computed(() =>
 
 /* DATA FINE */
 const endDate = computed(() => {
-  if (!inputs.value.startDate) return '-';
-  const [y, m] = inputs.value.startDate.split('-').map(Number);
-  if (!y || !m) return '-';
-  const d = new Date(y, m - 1);
-  d.setMonth(d.getMonth() + totalMonths.value);
-  return `${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  if (!inputs.value.startDate) return new Date();
+  const [y, m] = getYearMonth(new Date(inputs.value.startDate) ?? new Date()).split('-').map(Number);
+  const _endDate = new Date(y!, m! - 1);
+  _endDate.setMonth(_endDate.getMonth() + totalMonths.value);
+  return `${String(_endDate.getMonth() + 1).padStart(2, '0')}/${_endDate?.getFullYear()}`;
 });
 </script>
 
