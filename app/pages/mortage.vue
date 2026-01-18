@@ -126,6 +126,50 @@
       </div>
     </div>
 
+    <!-- SURROGA -->
+    <div class="card tool-card flex-column">
+      <Checkbox id="surroga" label="Simula surroga mutuo" v-model="surroga.enabled" />
+
+      <div v-if="surroga.enabled" class="input-grid">
+        <div class="input-item">
+          <label>Nuovo tasso (%)</label>
+          <input type="number" v-model.number="surroga.interestRate" step="0.01" min="0" />
+        </div>
+
+        <div class="input-item">
+          <label>Nuova durata (anni)</label>
+          <input type="number" v-model.number="surroga.term" min="1" />
+        </div>
+      </div>
+
+      <div v-if="surroga.enabled" class="results" style="margin-top: 12px;">
+        <div class="result-card">
+          <span class="label">Debito surrogato</span>
+          <span>{{ formatCurrency(surrogaPrincipal) }}</span>
+        </div>
+
+        <div class="result-card">
+          <span class="label">Nuova rata</span>
+          <span>{{ formatCurrency(surrogaMonthlyPayment) }}</span>
+        </div>
+
+        <div class="result-card">
+          <span class="label">Totale da ripagare</span>
+          <span>{{ formatCurrency(surrogaTotalPayment) }}</span>
+        </div>
+
+        <div class="result-card">
+          <span class="label">Interessi futuri</span>
+          <span>{{ formatCurrency(surrogaInterest) }}</span>
+        </div>
+
+        <div class="result-card saving">
+          <span class="label">Risparmio vs mutuo attuale</span>
+          <span>{{ formatCurrency(surrogaSaving) }}</span>
+        </div>
+      </div>
+    </div>
+
     <!-- MODALE AMMORTAMENTO -->
     <div v-if="showAmortization" class="modal-overlay" @click.self="showAmortization = false">
       <div class="modal">
@@ -211,11 +255,23 @@ const inputs = ref<Input>({
   startDate: getYearMonthDate(),
 });
 
+const surroga = ref({
+  enabled: false,
+  interestRate: 2.0,
+  term: 20,
+});
+
 const partial = ref({
   enabled: false,
   paidMonths: 0,
   amount: 0,
 });
+
+const surrogaPrincipal = computed(() =>
+  partial.value.enabled
+    ? remainingPrincipalAfterRepayment.value
+    : principalAfterPaidMonths.value
+);
 
 const showAmortization = ref(false);
 
@@ -383,6 +439,43 @@ const endDate = computed(() => {
   _endDate.setMonth(_endDate.getMonth() + totalMonths.value);
   return `${String(_endDate.getMonth() + 1).padStart(2, '0')}/${_endDate?.getFullYear()}`;
 });
+
+const surrogaMonths = computed(() => surroga.value.term * 12);
+const surrogaRate = computed(() => surroga.value.interestRate / 100 / 12);
+
+const surrogaMonthlyPayment = computed(() => {
+  const P = surrogaPrincipal.value;
+  const n = surrogaMonths.value;
+  const r = surrogaRate.value;
+
+  if (P === 0 || n === 0) return 0;
+  if (r === 0) return P / n;
+
+  return (
+    P *
+    (r * Math.pow(1 + r, n)) /
+    (Math.pow(1 + r, n) - 1)
+  );
+});
+
+const surrogaTotalPayment = computed(() =>
+  surrogaMonthlyPayment.value * surrogaMonths.value
+);
+
+const surrogaInterest = computed(() =>
+  surrogaTotalPayment.value - surrogaPrincipal.value
+);
+
+const remainingTotalCurrent = computed(() => {
+  if (partial.value.enabled) {
+    return remainingTotalWithoutRepayment.value;
+  }
+  return totalPayment.value;
+});
+
+const surrogaSaving = computed(() =>
+  remainingTotalCurrent.value - surrogaTotalPayment.value
+);
 </script>
 
 <style scoped>
