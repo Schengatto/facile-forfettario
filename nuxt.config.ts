@@ -4,6 +4,10 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/icon',
   ],
+  components: [
+    { path: '~/components/common', pathPrefix: false },
+    '~/components',
+  ],
   app: {
     head: {
       link: [{ rel: 'icon', type: 'image/x-icon', href: '/logo.svg' }],
